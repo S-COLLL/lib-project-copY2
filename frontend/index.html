@@ -44,18 +44,17 @@
     .glass .btn-primary:hover { box-shadow: 0 10px 30px rgba(20,184,166,.35); }
     .pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: #64748b; cursor: pointer; padding: 6px; }
     .pw-toggle svg { width: 18px; height: 18px; }
-    .demo { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(148,163,184,.14); }
-    .demo p { font-size: 12px; color: #64748b; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .08em; }
-    .demo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .demo-btn { display: flex; flex-direction: column; align-items: flex-start; padding: 9px 12px; border-radius: 10px; border: 1px solid rgba(148,163,184,.16); background: rgba(2,6,23,.4); color: #e2e8f0; cursor: pointer; text-align: left; transition: all var(--fast) var(--ease); }
-    .demo-btn:hover { border-color: var(--cyan); transform: translateY(-1px); }
-    .demo-btn strong { font-size: 12.5px; text-transform: capitalize; } .demo-btn small { color: #64748b; font-size: 11px; }
     .form-alert { margin-bottom: 14px; color: #e2e8f0; }
     .form-alert strong { color: #fff; }
     .glass .field-error { color: #fca5a5; }
     .glass .form-grid { gap: 12px; }
-    .auth-foot { margin-top: 18px; text-align: center; color: #64748b; font-size: 12px; }
     .theme-float { position: absolute; top: 20px; right: 20px; z-index: 2; color: #cbd5e1; }
+    /* Segmented pill: Student / Staff-Librarian (slate-900 track, slate-800 active pill) */
+    .role-switch { display: inline-flex; padding: 4px; margin-bottom: 18px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; }
+    .role-switch button { padding: 6px 12px; font-family: inherit; font-size: 12px; line-height: 16px; font-weight: 500; color: #94a3b8; background: transparent; border: 0; border-radius: 6px; cursor: pointer; transition: color var(--fast) var(--ease), background var(--fast) var(--ease); }
+    .role-switch button:hover { color: #e2e8f0; }
+    .role-switch button[aria-pressed="true"] { background: #1e293b; color: #e2e8f0; }
+    .role-switch button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
     @media (max-width: 960px) { .auth { grid-template-columns: 1fr; } .auth-hero { padding: 28px 24px 0; } .hero-feats, .shelf-art, .hero-copy p { display: none; } .hero-copy h1 { font-size: 28px; margin-top: 18px; } }
   </style>
 </head>
@@ -75,6 +74,10 @@
     <section class="auth-panel">
       <button class="icon-btn theme-float theme-toggle" id="themeBtn" aria-label="Toggle theme"></button>
       <div class="glass">
+        <div class="role-switch" role="group" aria-label="Sign in as">
+          <button type="button" data-role-mode="student" aria-pressed="true">Student</button>
+          <button type="button" data-role-mode="staff" aria-pressed="false">Staff / Librarian</button>
+        </div>
         <h2 id="formTitle">Welcome back</h2>
         <p class="sub" id="formSub">Sign in to continue to your dashboard.</p>
         <div class="tabs" role="tablist">
@@ -98,11 +101,6 @@
           <div class="field full"><label for="r-pass2">Confirm password</label><input class="input" type="password" id="r-pass2" name="password2" required placeholder="Repeat password" autocomplete="new-password"></div>
           <button class="btn btn-primary btn-block full" id="registerBtn" type="submit">Create student account</button>
         </form>
-        <div class="demo" id="demoBox">
-          <p>Demo accounts — click to sign in</p>
-          <div class="demo-grid" id="demoGrid"></div>
-        </div>
-        <div class="auth-foot">Protected with JWT authentication &amp; bcrypt password hashing</div>
       </div>
     </section>
   </div>

@@ -42,9 +42,8 @@ const showAlert = (msg, type = 'error') => {
 if (qp('expired')) showAlert('Your session has expired. Please sign in again.', 'warn');
 if (qp('loggedout')) showAlert('You have been signed out.', 'success');
 if (qp('reset')) showAlert('Demo data has been reset to the original library.', 'success');
-if (DEMO_MODE) document.querySelector('.auth-foot').textContent = 'Demo build · the full version uses JWT authentication & bcrypt';
 if (DEMO_MODE && !alertBox.innerHTML) {
-  alertBox.innerHTML = `<div class="callout gold form-alert">${icon('info')}<span><strong>Live demo</strong> — SmartLib runs entirely in your browser here. Pick a demo account below; your changes are saved only on this device.</span></div>`;
+  alertBox.innerHTML = `<div class="callout gold form-alert">${icon('info')}<span><strong>Live demo</strong> — SmartLib runs entirely in your browser here; your changes are saved only on this device.</span></div>`;
 }
 
 // Tabs
@@ -56,9 +55,8 @@ document.querySelectorAll('.tab').forEach((t) =>
     const reg = t.dataset.tab === 'register';
     loginForm.classList.toggle('hidden', reg);
     registerForm.classList.toggle('hidden', !reg);
-    document.getElementById('demoBox').classList.toggle('hidden', reg);
     document.getElementById('formTitle').textContent = reg ? 'Create your account' : 'Welcome back';
-    document.getElementById('formSub').textContent = reg ? 'Students get a library membership instantly.' : 'Sign in to continue to your dashboard.';
+    document.getElementById('formSub').textContent = reg ? 'Students get a library membership instantly.' : loginSubtitle();
     showAlert('');
     (reg ? registerForm : loginForm).querySelector('input').focus();
   })
@@ -104,23 +102,33 @@ registerForm.addEventListener('submit', async (e) => {
   });
 });
 
-// The in-browser demo snapshot keeps the original SmartLib emails; the MySQL seed uses @library.com.
-const domain = DEMO_MODE ? 'smartlib.com' : 'library.com';
-const demos = [
-  ['admin', `admin@${domain}`, 'Admin@123'],
-  ['librarian', `librarian@${domain}`, 'Librarian@123'],
-  ['staff', `staff@${domain}`, 'Staff@123'],
-  ['student', `student@${domain}`, 'Student@123'],
-];
-document.getElementById('demoGrid').innerHTML = demos.map(([r, e]) => `<button class="demo-btn" data-role="${r}"><strong>${r}</strong><small>${e}</small></button>`).join('');
-document.querySelectorAll('.demo-btn').forEach((b) =>
-  b.addEventListener('click', () => {
-    const [, email, pass] = demos.find((d) => d[0] === b.dataset.role);
-    emailInput.value = email;
-    passInput.value = pass;
-    login(email, pass, document.getElementById('loginBtn'));
-  })
-);
+// Student / Staff-Librarian switch: students can self-register; staff accounts are created by an admin.
+const ROLE_KEY = 'smartlib-login-role';
+let roleMode = 'student';
+try {
+  if (localStorage.getItem(ROLE_KEY) === 'staff') roleMode = 'staff';
+} catch {
+  /* storage unavailable */
+}
+function loginSubtitle() {
+  return roleMode === 'staff' ? 'Sign in to manage the catalogue, circulation and fines.' : 'Sign in to borrow, reserve and track your loans.';
+}
+function applyRoleMode(mode) {
+  roleMode = mode;
+  try {
+    localStorage.setItem(ROLE_KEY, mode);
+  } catch {
+    /* storage unavailable */
+  }
+  const staff = mode === 'staff';
+  document.querySelectorAll('[data-role-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.roleMode === mode)));
+  if (staff && !registerForm.classList.contains('hidden')) document.querySelector('.tab[data-tab="login"]').click();
+  document.querySelector('.tabs').classList.toggle('hidden', staff);
+  if (registerForm.classList.contains('hidden')) document.getElementById('formSub').textContent = loginSubtitle();
+  emailInput.placeholder = staff ? 'you@library.com or user ID' : 'you@college.edu or user ID';
+}
+document.querySelectorAll('[data-role-mode]').forEach((b) => b.addEventListener('click', () => applyRoleMode(b.dataset.roleMode)));
+applyRoleMode(roleMode);
 
 // Soft animated particles
 (function particles() {

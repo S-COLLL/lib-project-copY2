@@ -8,6 +8,7 @@ The interface is the SmartLib UI (dark navy / teal / gold, Inter). It is English
 - **Frontend:** HTML5, CSS3, vanilla JavaScript ES modules, Chart.js. No framework, no build step.
 - **Backend:** Node.js 18+, Express 4, MySQL 8 (InnoDB, utf8mb4) via `mysql2` with a pool of 10.
 - **Security:** JWT (7 days), bcrypt (`bcryptjs`), Helmet, CORS, express-rate-limit, express-validator, `?` placeholders in every query.
+- **Java backend (alternative):** the same API in **Java 21 + Spring Boot 4** with Spring JDBC — see [java-backend/README.md](java-backend/README.md). It uses the same MySQL tables and serves the same frontend.
 
 ## Run locally
 

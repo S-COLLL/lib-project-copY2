@@ -1,5 +1,8 @@
 const ApiError = require('../utils/ApiError');
 
+// The database host can't be found or reached (e.g. a cloud database that was powered off).
+const DB_UNREACHABLE = new Set(['ENOTFOUND', 'EAI_AGAIN', 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET', 'PROTOCOL_CONNECTION_LOST']);
+
 function notFound(req, res, next) {
   next(new ApiError(404, `Route not found: ${req.method} ${req.originalUrl}`));
 }
@@ -28,10 +31,14 @@ function errorHandler(err, req, res, next) {
   } else if (err.code === 'ER_TRUNCATED_WRONG_VALUE' || err.code === 'ER_WRONG_VALUE') {
     status = 400;
     message = 'A date or number in the request is invalid';
+  } else if (DB_UNREACHABLE.has(err.code)) {
+    status = 503;
+    message = 'The library database is unavailable right now. Please try again in a few minutes.';
   }
 
   if (status >= 500) console.error(err);
-  res.status(status).json({ success: false, message: status >= 500 && process.env.NODE_ENV === 'production' ? 'Server error' : message, details: err.details });
+  const hide = status >= 500 && status !== 503 && process.env.NODE_ENV === 'production';
+  res.status(status).json({ success: false, message: hide ? 'Server error' : message, details: err.details });
 }
 
 module.exports = { notFound, errorHandler };
